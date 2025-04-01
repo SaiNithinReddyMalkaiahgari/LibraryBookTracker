@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1036221120783",
+    "project_id": "librarytracker-e371d",
+    "storage_bucket": "librarytracker-e371d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036221120783:android:845b1257c2ab29a6b2be7a",
+        "android_client_info": {
+          "package_name": "com.example.librarytracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcXw6PYw1itDTw5tM5blWhtrq2W7QQB84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

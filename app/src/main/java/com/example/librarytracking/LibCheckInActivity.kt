@@ -1,6 +1,7 @@
 package com.example.librarytracking
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.firebase.database.FirebaseDatabase
 
 class LibCheckInActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +102,13 @@ fun LoginScreen() {
             Button(
                 onClick = {
                     if (useremail.isNotEmpty() && userpassword.isNotEmpty()) {
-                        Toast.makeText(context, "To be Implemented", Toast.LENGTH_SHORT).show()
+                        val libReaderData = LibReader(
+                            "",
+                            useremail,
+                            "",
+                            userpassword
+                        )
+                        userAccountAccess(libReaderData,context)
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }
@@ -146,4 +154,34 @@ fun LoginScreen() {
         }
     }
 
+}
+
+fun userAccountAccess(libReader: LibReader, context: Context) {
+
+    val firebaseDatabase = FirebaseDatabase.getInstance()
+    val databaseReference = firebaseDatabase.getReference("LibraryReader").child(libReader.emailid.replace(".", ","))
+
+    databaseReference.get().addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val dbData = task.result?.getValue(LibReader::class.java)
+            if (dbData != null) {
+                if (dbData.password == libReader.password) {
+
+                    Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()
+
+                } else {
+                    Toast.makeText(context, "Seems Incorrect Credentials", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "Your account not found", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(
+                context,
+                "Something went wrong",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    }
 }

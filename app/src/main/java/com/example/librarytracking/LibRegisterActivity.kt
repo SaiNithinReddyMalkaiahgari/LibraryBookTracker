@@ -1,6 +1,7 @@
 package com.example.librarytracking
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.firebase.database.FirebaseDatabase
 
 class LibRegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,7 +146,14 @@ fun RegisterScreen() {
                         return@Button
                     }
 
-                    Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+                    val libReaderData = LibReader(
+                        name,
+                        useremail,
+                        "",
+                        userpassword
+                    )
+                    libReaderRegister(libReaderData,context)
+
 
                 },
                 modifier = Modifier
@@ -187,3 +196,39 @@ fun RegisterScreen() {
 
     }
 }
+
+fun libReaderRegister(userData: LibReader, context: Context) {
+
+    val firebaseDatabase = FirebaseDatabase.getInstance()
+    val databaseReference = firebaseDatabase.getReference("LibraryReader")
+
+    databaseReference.child(userData.emailid.replace(".", ","))
+        .setValue(userData)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(context, "You Registered Successfully", Toast.LENGTH_SHORT)
+                    .show()
+
+            } else {
+                Toast.makeText(
+                    context,
+                    "Registration Failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        .addOnFailureListener { _ ->
+            Toast.makeText(
+                context,
+                "Something went wrong",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}
+
+data class LibReader(
+    var name : String = "",
+    var emailid : String = "",
+    var area : String = "",
+    var password: String = ""
+)
