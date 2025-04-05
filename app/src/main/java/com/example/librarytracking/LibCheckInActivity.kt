@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.database.FirebaseDatabase
 
 class LibCheckInActivity : ComponentActivity() {
@@ -150,7 +151,6 @@ fun LoginScreen() {
 
             }
 
-
         }
     }
 
@@ -166,6 +166,8 @@ fun userAccountAccess(libReader: LibReader, context: Context) {
             val dbData = task.result?.getValue(LibReader::class.java)
             if (dbData != null) {
                 if (dbData.password == libReader.password) {
+
+                    context.startActivity(Intent(context, LibraryHomectivity::class.java))
 
                     Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()
 

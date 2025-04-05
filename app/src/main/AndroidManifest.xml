@@ -13,6 +13,9 @@
         android:theme="@style/Theme.LibraryTracking"
         tools:targetApi="31">
         <activity
+            android:name=".LibraryHomectivity"
+            android:exported="false" />
+        <activity
             android:name=".LibRegisterActivity"
             android:exported="false" />
         <activity
