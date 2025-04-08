@@ -10,4 +10,6 @@
 
     <color name="p1">#101820</color>
     <color name="p2">#FEE715</color>
+
+    <color name="top_bar_color">#31415b</color>
 </resources>
