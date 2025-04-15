@@ -1,10 +1,10 @@
 package com.example.librarytracking
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +26,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.librarytracking.ui.theme.LibraryTrackingTheme
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +42,8 @@ class MainActivity : ComponentActivity() {
 
         when (value) {
             1 -> {
-                //TODO Add Home Screen
+                startActivity(Intent(this, LibraryHomectivity::class.java))
+                finish()
             }
 
             2 -> {
@@ -65,7 +63,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(onLoginClick: (value: Int) -> Unit) {
     var showSplash by remember { mutableStateOf(true) }
 
-    val context = LocalContext.current
+    val context = LocalContext.current as Activity
 
     LaunchedEffect(Unit) {
         delay(3000) // 3 seconds delay
@@ -75,7 +73,14 @@ fun MainScreen(onLoginClick: (value: Int) -> Unit) {
     if (showSplash) {
         SplashScreen()
     } else {
-        onLoginClick.invoke(2)
+
+        val currentStatus = LibTrackingData.readLS(context)
+
+        if (currentStatus) {
+            onLoginClick.invoke(1)
+        } else {
+            onLoginClick.invoke(2)
+        }
     }
 }
 

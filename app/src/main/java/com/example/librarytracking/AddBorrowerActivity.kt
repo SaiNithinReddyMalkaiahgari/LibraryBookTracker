@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,12 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,44 +27,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-class AddBookActivity : ComponentActivity() {
+class AddBorrowerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AddBookScreen()
+            AddBookBorrowerScreen()
         }
     }
 }
 
 
-@Preview(showBackground = true)
 @Composable
-fun AddBookScreenP() {
-    AddBookScreen()
-}
-
-@Composable
-fun AddBookScreen() {
-    var title by remember { mutableStateOf("") }
-    var author by remember { mutableStateOf("") }
-    var genre by remember { mutableStateOf("") }
-
-    var shelfLocation by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var availability by remember { mutableStateOf("") }
-
-    val context = LocalContext.current
+fun AddBookBorrowerScreen() {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var bookTitle by remember { mutableStateOf("") }
+    var bookId by remember { mutableStateOf("") }
+    var borrowDate by remember { mutableStateOf("") }
+    var returnDate by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,7 +79,7 @@ fun AddBookScreen() {
             Text(
                 modifier = Modifier
                     .padding(12.dp),
-                text = "Add Book",
+                text = "Add Book Borrower",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = Color.White,
                     fontWeight = FontWeight.Bold
@@ -101,76 +94,63 @@ fun AddBookScreen() {
                 .padding(12.dp)
         ) {
 
-            TextField(
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Book Title") },
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Full Name") })
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = author,
-                onValueChange = { author = it },
-                label = { Text("Author") },
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") })
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = genre,
-                onValueChange = { genre = it },
-                label = { Text("Genre") },
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            TextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Phone Number") })
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = shelfLocation,
-                onValueChange = { shelfLocation = it },
-                label = { Text("Shelf Location") },
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            TextField(
+                value = bookTitle,
+                onValueChange = { bookTitle = it },
+                label = { Text("Book Title") })
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = quantity,
-                onValueChange = { quantity = it },
-                label = { Text("Quantity") },
-            )
+                value = bookId,
+                onValueChange = { bookId = it },
+                label = { Text("Book ID") })
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            TextField(
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = availability,
-                onValueChange = { availability = it },
-                label = { Text("Availability") },
+                value = borrowDate,
+                onValueChange = { borrowDate = it },
+                label = { Text("Borrow Date (YYYY-MM-DD)") },
+                placeholder = { Text("2025-04-15") }
             )
-
-            Spacer(modifier = Modifier.height(42.dp))
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = returnDate,
+                onValueChange = { returnDate = it },
+                label = { Text("Return Date (YYYY-MM-DD)") },
+                placeholder = { Text("2025-04-30") }
+            )
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Notes (optional)") },
+                maxLines = 3,
+                modifier = Modifier.height(100.dp).fillMaxWidth()
+            )
 
             Button(
                 onClick = {
-
+                    // handle submission
                 },
-                modifier = Modifier
-                    .padding(16.dp, 2.dp)
-                    .align(Alignment.CenterHorizontally),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.p2),
-                    contentColor = colorResource(id = R.color.p1)
-                )
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Add Book")
+                Text("Submit")
             }
-
         }
     }
 }
+

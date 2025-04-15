@@ -360,13 +360,12 @@ fun LibraryHomeScreen() {
                 )
             )
 
-
         }
 
         Row(
             modifier = Modifier
                 .clickable {
-                    context.startActivity(Intent(context, LibCheckInActivity::class.java))
+                    context.startActivity(Intent(context, AddBookActivity::class.java))
 
                 }
                 .fillMaxWidth()
@@ -415,12 +414,14 @@ fun LibraryHomeScreen() {
                 contentDescription = "arrow"
             )
 
-
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable {
+                    context.startActivity(Intent(context, AddBorrowerActivity::class.java))
+                }
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .background(
                     color = colorResource(id = R.color.p2),
@@ -526,7 +527,7 @@ fun LibraryHomeScreen() {
                         color = colorResource(id = R.color.p2),
                         shape = RoundedCornerShape(6.dp)
                     )
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
