@@ -167,6 +167,10 @@ fun userAccountAccess(libReader: LibReader, context: Context) {
             if (dbData != null) {
                 if (dbData.password == libReader.password) {
 
+                    LibTrackingData.writeLS(context, true)
+                    LibTrackingData.writeMail(context, dbData.emailid)
+                    LibTrackingData.writeUserName(context, dbData.name)
+
                     context.startActivity(Intent(context, LibraryHomectivity::class.java))
 
                     Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()

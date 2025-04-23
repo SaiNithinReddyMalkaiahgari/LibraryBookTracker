@@ -1,10 +1,23 @@
 package com.example.librarytracking
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +47,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.database.FirebaseDatabase
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AddBookActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,8 +120,13 @@ fun AddBookScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            UploadDonorImage()
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -157,7 +184,33 @@ fun AddBookScreen() {
 
             Button(
                 onClick = {
+                    if (title.isEmpty()) {
+                        Toast.makeText(context, "Enter all fileds", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val inputStream =
+                            context.contentResolver.openInputStream(DonorPhoto.selImageUri)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                        val base64Image =
+                            Base64.encodeToString(
+                                outputStream.toByteArray(),
+                                Base64.DEFAULT
+                            )
 
+
+                        val bookData = BookData(
+                            title = title,
+                            author = author,
+                            genre = genre,
+                            shelfLocation = shelfLocation,
+                            qunatity = quantity,
+                            availability = availability,
+                            imageUrl = base64Image
+                        )
+
+                        registerDonor(bookData, context)
+                    }
                 },
                 modifier = Modifier
                     .padding(16.dp, 2.dp)
@@ -173,4 +226,127 @@ fun AddBookScreen() {
 
         }
     }
+}
+
+private fun registerDonor(addBookData: BookData, activityContext: Context) {
+
+    val userEmail = LibTrackingData.readMail(activityContext)
+    val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+    val orderId = dateFormat.format(Date())
+    addBookData.bookId = orderId
+
+    FirebaseDatabase.getInstance().getReference("BooksInShelf").child(userEmail.replace(".", ","))
+        .child(orderId).setValue(addBookData)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(activityContext, "Book Added Successfully", Toast.LENGTH_SHORT)
+                    .show()
+                (activityContext as Activity).finish()
+            } else {
+                Toast.makeText(
+                    activityContext,
+                    "Book Added Failed: ${task.exception?.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        .addOnFailureListener { exception ->
+            Toast.makeText(
+                activityContext,
+                "Book Added Failed: ${exception.message}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}
+
+data class BookData(
+    var title: String = "",
+    var bookId: String = "",
+    var author: String = "",
+    var genre: String = "",
+    var shelfLocation: String = "",
+    var qunatity: String = "",
+    var availability: String = "",
+    var imageUrl: String = ""
+)
+
+@Composable
+fun UploadDonorImage() {
+    val activityContext = LocalContext.current
+
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val captureImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                imageUri = getImageUri(activityContext)
+                DonorPhoto.selImageUri = imageUri as Uri
+                DonorPhoto.isImageSelected = true
+            } else {
+                DonorPhoto.isImageSelected = false
+                Toast.makeText(activityContext, "Capture Failed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast.makeText(activityContext, "Permission Granted", Toast.LENGTH_SHORT).show()
+                captureImageLauncher.launch(getImageUri(activityContext)) // Launch the camera
+            } else {
+                Toast.makeText(activityContext, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    Column(
+        modifier = Modifier.size(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = if (imageUri != null) {
+                rememberAsyncImagePainter(model = imageUri)
+            } else {
+                painterResource(id = R.drawable.ic_add_image)
+            },
+            contentDescription = "Captured Image",
+            modifier = Modifier
+                .width(100.dp)
+                .height(100.dp)
+                .clickable {
+                    if (ContextCompat.checkSelfPermission(
+                            activityContext,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        captureImageLauncher.launch(getImageUri(activityContext))
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (imageUri == null) {
+            Text(text = "Tap the image to capture")
+        }
+    }
+}
+
+fun getImageUri(activityContext: Context): Uri {
+    val file = File(activityContext.filesDir, "captured_image.jpg")
+    return FileProvider.getUriForFile(
+        activityContext,
+        "${activityContext.packageName}.fileprovider",
+        file
+    )
+}
+
+
+object DonorPhoto {
+    lateinit var selImageUri: Uri
+    var isImageSelected = false
 }

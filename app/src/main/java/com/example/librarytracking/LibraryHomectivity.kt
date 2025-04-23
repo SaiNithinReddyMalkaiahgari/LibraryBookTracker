@@ -2,7 +2,6 @@ package com.example.librarytracking
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -494,7 +492,10 @@ fun LibraryHomeScreen() {
                         color = colorResource(id = R.color.p2),
                         shape = RoundedCornerShape(6.dp)
                     )
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .clickable {
+                        context.startActivity(Intent(context, ManageBooksActivity::class.java))
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -514,7 +515,6 @@ fun LibraryHomeScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 )
-
             }
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -527,6 +527,9 @@ fun LibraryHomeScreen() {
                         color = colorResource(id = R.color.p2),
                         shape = RoundedCornerShape(6.dp)
                     )
+                    .clickable {
+                        context.startActivity(Intent(context, ManageBorrowersActivity::class.java))
+                    }
                     .padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
