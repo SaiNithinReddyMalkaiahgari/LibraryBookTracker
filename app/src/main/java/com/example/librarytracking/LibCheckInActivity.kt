@@ -172,7 +172,7 @@ fun userAccountAccess(libReader: LibReader, context: Context) {
                     LibTrackingData.writeUserName(context, dbData.name)
 
                     context.startActivity(Intent(context, LibraryHomectivity::class.java))
-
+                    (context as Activity).finish()
                     Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()
 
                 } else {

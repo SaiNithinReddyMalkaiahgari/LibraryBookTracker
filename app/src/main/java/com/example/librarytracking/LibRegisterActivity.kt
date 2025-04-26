@@ -152,7 +152,7 @@ fun RegisterScreen() {
                         "",
                         userpassword
                     )
-                    libReaderRegister(libReaderData,context)
+                    libReaderRegister(libReaderData, context)
 
 
                 },
@@ -209,6 +209,9 @@ fun libReaderRegister(userData: LibReader, context: Context) {
                 Toast.makeText(context, "You Registered Successfully", Toast.LENGTH_SHORT)
                     .show()
 
+                context.startActivity(Intent(context, LibCheckInActivity::class.java))
+                (context as Activity).finish()
+
             } else {
                 Toast.makeText(
                     context,
@@ -227,8 +230,8 @@ fun libReaderRegister(userData: LibReader, context: Context) {
 }
 
 data class LibReader(
-    var name : String = "",
-    var emailid : String = "",
-    var area : String = "",
+    var name: String = "",
+    var emailid: String = "",
+    var area: String = "",
     var password: String = ""
 )

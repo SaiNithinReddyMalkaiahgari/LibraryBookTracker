@@ -19,6 +19,12 @@
         android:theme="@style/Theme.LibraryTracking"
         tools:targetApi="31">
         <activity
+            android:name=".LibraryProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UpdateBooksActivity"
+            android:exported="false" />
+        <activity
             android:name=".ManageBorrowersActivity"
             android:exported="false" />
         <activity

@@ -72,13 +72,27 @@ fun AddBookBorrowerScreen() {
     var bookList by remember { mutableStateOf(listOf<String>()) }
 
     var showDatePicker by remember { mutableStateOf(false) }
+    val userEmail = LibTrackingData.readMail(context)
+
+    var loadBooks by remember { mutableStateOf(true) }
+
 
     // Fetch book titles from Firebase
+//    LaunchedEffect(Unit) {
+//        getBooks(userEmail) { books ->
+//            bookList = books.mapNotNull { it.title }
+//        }
+//    }
+
     LaunchedEffect(Unit) {
-        getBooks { books ->
-            bookList = books.mapNotNull { it.title }
+        getBooks(userEmail) { books ->
+            bookList = books
+                .filter { it.availability == "Available" }
+                .mapNotNull { it.title }
+            loadBooks = false
         }
     }
+
 
     // Show DatePicker
     if (showDatePicker) {
@@ -97,8 +111,7 @@ fun AddBookBorrowerScreen() {
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Header
@@ -112,7 +125,11 @@ fun AddBookBorrowerScreen() {
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                 contentDescription = "Back",
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier
+                    .size(36.dp)
+                    .clickable {
+                        (context as Activity).finish()
+                    }
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -124,72 +141,83 @@ fun AddBookBorrowerScreen() {
             )
         }
 
-        // Form Fields
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = { Text("Phone Number") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // 🔽 Using your custom dropdown component
-        DropdownMenuBookTitles(
-            types = bookList,
-            selectedType = selectedBook,
-            onTypeSelected = { selectedBook = it }
-        )
-
-        OutlinedTextField(
-            value = borrowDate,
-            onValueChange = {},
-            label = { Text("Borrow Date") },
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true },
-            readOnly = true,
-            enabled = false
-        )
-
-        OutlinedTextField(
-            value = notes,
-            onValueChange = { notes = it },
-            label = { Text("Notes (optional)") },
-            maxLines = 3,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-        )
-
-        Button(
-            onClick = {
-                val borrowerData = BorrowerData(
-                    fullName = name,
-                    email = email,
-                    phoneNumber = phone,
-                    book = selectedBook,
-                    borrowDate = borrowDate,
-                    notes = notes
-                )
-
-                addBorrower(borrowerData, context)
-            },
-            modifier = Modifier.fillMaxWidth()
+                .fillMaxSize()
+                .padding(12.dp)
         ) {
-            Text("Submit")
+
+            // Form Fields
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Full Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Phone Number") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // 🔽 Using your custom dropdown component
+            DropdownMenuBookTitles(
+                types = bookList,
+                selectedType = selectedBook,
+                onTypeSelected = { selectedBook = it }
+            )
+            if (loadBooks) {
+                Text(text = "Loading books...")
+            }
+
+            OutlinedTextField(
+                value = borrowDate,
+                onValueChange = {},
+                label = { Text("Borrow Date") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDatePicker = true },
+                readOnly = true,
+                enabled = false
+            )
+
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Notes (optional)") },
+                maxLines = 3,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+            )
+
+            Button(
+                onClick = {
+                    val borrowerData = BorrowerData(
+                        fullName = name,
+                        email = email,
+                        phoneNumber = phone,
+                        book = selectedBook,
+                        borrowDate = borrowDate,
+                        notes = notes,
+                        isReturned = false
+                    )
+
+                    addBorrower(borrowerData, context)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Submit")
+            }
         }
     }
 }
@@ -200,6 +228,7 @@ private fun addBorrower(borrowerData: BorrowerData, activityContext: Context) {
     val userEmail = LibTrackingData.readMail(activityContext)
     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
     val orderId = dateFormat.format(Date())
+    borrowerData.entryId = orderId
 
     FirebaseDatabase.getInstance().getReference("BookBorrowers").child(userEmail.replace(".", ","))
         .child(orderId).setValue(borrowerData)
@@ -257,6 +286,7 @@ fun DropdownMenuBookTitles(
             onDismissRequest = { expanded = false }
         ) {
             types.forEach { type ->
+
                 DropdownMenuItem(
                     text = { Text(type) },
                     onClick = {
@@ -277,6 +307,7 @@ data class BorrowerData(
     var book: String = "",
     var borrowDate: String = "",
     var notes: String = "",
-    var entryId: String = ""
+    var entryId: String = "",
+    var isReturned: Boolean = false
 )
 

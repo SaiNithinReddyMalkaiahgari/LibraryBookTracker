@@ -1,7 +1,7 @@
 package com.example.librarytracking
 
 import android.app.Activity
-import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,10 +25,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +48,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,29 +63,29 @@ class ManageBooksActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DonorSearchScreen()
+            ManageBooksScreen()
         }
     }
 }
 
 
 @Composable
-fun DonorSearchScreen() {
+fun ManageBooksScreen() {
     var searchQuery by remember { mutableStateOf("") }
 
     val context = LocalContext.current as Activity
     val userEmail = LibTrackingData.readMail(context)
-    var donorsList by remember { mutableStateOf(listOf<BookData>()) }
-    var loadDonors by remember { mutableStateOf(true) }
+    var booksList by remember { mutableStateOf(listOf<BookData>()) }
+    var loadBooks by remember { mutableStateOf(true) }
 
     LaunchedEffect(userEmail) {
-        getBooks() { orders ->
-            donorsList = orders
-            loadDonors = false
+        getBooks(userEmail) { orders ->
+            booksList = orders
+            loadBooks = false
         }
     }
 
-    val filteredDonors = donorsList.filter {
+    val filteredDonors = booksList.filter {
         it.title.contains(searchQuery, ignoreCase = true)
     }
 
@@ -92,10 +97,8 @@ fun DonorSearchScreen() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Color.Red
-                )
-                .padding(12.dp),
+                .background(color = colorResource(id = R.color.top_bar_color))
+                .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -144,24 +147,32 @@ fun DonorSearchScreen() {
 //                    BookItem(filteredDonors[donor])
 //                }
 //            }
+            if (loadBooks) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
 
-            LazyColumn {
-                items(filteredDonors.chunked(2)) { pair ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        pair.forEach { donor ->
-                            Box(modifier = Modifier.weight(1f)) {
-                                BookItem(donor)
+                if (filteredDonors.isNotEmpty()) {
+                    LazyColumn {
+                        items(filteredDonors.chunked(2)) { pair ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                pair.forEach { donor ->
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        BookItem(donor)
+                                    }
+                                }
+                                // Fill the empty space if items are odd
+                                if (pair.size < 2) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
-                        }
-                        // Fill the empty space if items are odd
-                        if (pair.size < 2) {
-                            Spacer(modifier = Modifier.weight(1f))
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                } else {
+                    Text(text = "No Books Listed")
                 }
             }
 
@@ -172,16 +183,19 @@ fun DonorSearchScreen() {
 
 // Donor Item UI
 @Composable
-fun BookItem(donor: BookData) {
+fun BookItem(bookData: BookData) {
+
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier) {
 
-            if (donor.imageUrl.isNotEmpty()) {
+            if (bookData.imageUrl.isNotEmpty()) {
                 Image(
-                    bitmap = decodeBase64ToBitmap(donor.imageUrl)!!.asImageBitmap(),
+                    bitmap = decodeBase64ToBitmap(bookData.imageUrl)!!.asImageBitmap(),
                     contentDescription = "Book Image",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -194,20 +208,21 @@ fun BookItem(donor: BookData) {
 
 
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
             ) {
                 Text(
-                    text = "${donor.title}",
+                    text = "${bookData.title}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Row (
+                Row(
                     verticalAlignment = Alignment.CenterVertically
-                ){
-
+                ) {
                     Image(
                         modifier = Modifier.size(14.dp),
                         painter = painterResource(id = R.drawable.iv_author),
@@ -215,12 +230,17 @@ fun BookItem(donor: BookData) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${donor.author}",
+                        text = "${bookData.author}",
                         fontSize = 14.sp
                     )
+                }
 
-                    Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(4.dp))
 
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Image(
                         modifier = Modifier.size(14.dp),
                         painter = painterResource(id = R.drawable.iv_genre),
@@ -230,16 +250,47 @@ fun BookItem(donor: BookData) {
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = "${donor.genre}",
+                        text = "${bookData.genre}",
                         fontSize = 14.sp
                     )
-
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
 
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .clickable {
+                            SelectedBook.bookData = bookData
+                            context.startActivity(Intent(context, UpdateBooksActivity::class.java))
+                        }
+                        .background(
+                            color = Color.Black,
+                            shape = RoundedCornerShape(
+                                10.dp
+                            )
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = colorResource(id = R.color.black),
+                            shape = RoundedCornerShape(
+                                10.dp
+                            )
+                        )
+                        .padding(vertical = 4.dp, horizontal = 12.dp)
+                        .align(Alignment.CenterHorizontally),
+                    text = "Update",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = colorResource(id = R.color.white),
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+
 //                Text(
-//                    text = "Quantity : ${donor.qunatity}",
+//                    text = "Quantity : ${bookData.qunatity}",
 //                    fontSize = 16.sp
 //                )
             }
@@ -247,22 +298,22 @@ fun BookItem(donor: BookData) {
     }
 }
 
-fun getBooks(callback: (List<BookData>) -> Unit) {
+fun getBooks(userEmail: String, callback: (List<BookData>) -> Unit) {
 
-    val databaseReference = FirebaseDatabase.getInstance().getReference("BooksInShelf")
+    val emailKey = userEmail.replace(".", ",")
+
+    val databaseReference = FirebaseDatabase.getInstance().getReference("BooksInShelf/$emailKey")
 
     databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            val booksList = mutableListOf<BookData>()
+            val bookList = mutableListOf<BookData>()
 
-            for (donorSnapshot in snapshot.children) {
-                for (donationSnapshot in donorSnapshot.children) {
-                    val donation = donationSnapshot.getValue(BookData::class.java)
-                    donation?.let { booksList.add(it) }
-                }
+            for (bookSnapshot in snapshot.children) {
+                val book = bookSnapshot.getValue(BookData::class.java)
+                book?.let { bookList.add(it) }
             }
 
-            callback(booksList)
+            callback(bookList)
         }
 
         override fun onCancelled(error: DatabaseError) {

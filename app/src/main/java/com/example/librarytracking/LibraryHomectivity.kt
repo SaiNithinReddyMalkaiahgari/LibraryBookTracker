@@ -19,8 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Icon
@@ -328,7 +330,9 @@ fun LibraryHomeScreen() {
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
 
         Row(
@@ -558,6 +562,9 @@ fun LibraryHomeScreen() {
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .clickable {
+                        context.startActivity(Intent(context, LibraryProfileActivity::class.java))
+                    }
                     .border(
                         width = 2.dp,
                         color = colorResource(id = R.color.p2),
@@ -585,6 +592,86 @@ fun LibraryHomeScreen() {
                 )
 
             }
+        }
+
+
+
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .clickable {
+                    context.startActivity(Intent(context, LibraryProfileActivity::class.java))
+                }
+                .border(
+                    width = 2.dp,
+                    color = colorResource(id = R.color.p2),
+                    shape = RoundedCornerShape(6.dp)
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Contact Us",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.p2)),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            Text(text = "Sai Nithin Reddy Malkaiahgari")
+            Text(text = "Email: sainithinreddy2002@gmail.com")
+            Text(text = "Student ID: S3463812")
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .clickable {
+                    context.startActivity(Intent(context, LibraryProfileActivity::class.java))
+                }
+                .border(
+                    width = 2.dp,
+                    color = colorResource(id = R.color.p2),
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .padding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "About Us",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.p2)),
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                text = "Welcome to LibTrack – your personal library book tracker, designed to keep your reading organized and your books within reach!\n" +
+                        "Developed by Sai Nithin Reddy Malkaiahgari, LibTrack is the perfect app for book lovers, students, and anyone who wants to manage their library efficiently. Whether you’re tracking books you own, borrowing from friends or a library, or managing your reading list, LibTrack makes it easy to stay organized.\n" +
+                        "Thank you for choosing LibTrack to keep your library in check!\n",
+                textAlign = TextAlign.Justify
+            )
+
         }
     }
 }
