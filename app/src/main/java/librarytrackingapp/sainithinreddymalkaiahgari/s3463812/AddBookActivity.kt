@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.Manifest
 import android.app.Activity
@@ -52,7 +52,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.database.FirebaseDatabase
-import okhttp3.internal.platform.Jdk9Platform.Companion.isAvailable
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
@@ -131,7 +130,7 @@ fun AddBookScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            UploadDonorImage()
+            UploadBookImage()
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -180,12 +179,6 @@ fun AddBookScreen() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-//            TextField(
-//                modifier = Modifier.fillMaxWidth(),
-//                value = availability,
-//                onValueChange = { availability = it },
-//                label = { Text("Availability") },
-//            )
 
             Column(
                 modifier = Modifier
@@ -223,32 +216,38 @@ fun AddBookScreen() {
 
             Button(
                 onClick = {
-                    if (title.isEmpty()) {
+                    if (title.isEmpty()||author.isEmpty()||genre.isEmpty()||shelfLocation.isEmpty()||quantity.isEmpty()||availability.isEmpty()) {
                         Toast.makeText(context, "Enter all fileds", Toast.LENGTH_SHORT).show()
                     } else {
-                        val inputStream =
-                            context.contentResolver.openInputStream(DonorPhoto.selImageUri)
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        val outputStream = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-                        val base64Image =
-                            Base64.encodeToString(
-                                outputStream.toByteArray(),
-                                Base64.DEFAULT
+
+                        if(BookPhoto.isImageSelected) {
+                            val inputStream =
+                                context.contentResolver.openInputStream(BookPhoto.selImageUri)
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            val outputStream = ByteArrayOutputStream()
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                            val base64Image =
+                                Base64.encodeToString(
+                                    outputStream.toByteArray(),
+                                    Base64.DEFAULT
+                                )
+
+
+                            val bookData = BookData(
+                                title = title,
+                                author = author,
+                                genre = genre,
+                                shelfLocation = shelfLocation,
+                                qunatity = quantity,
+                                availability = availability,
+                                imageUrl = base64Image
                             )
 
+                            uploadBook(bookData, context)
+                        }else{
+                            Toast.makeText(context, "Upload book image", Toast.LENGTH_SHORT).show()
 
-                        val bookData = BookData(
-                            title = title,
-                            author = author,
-                            genre = genre,
-                            shelfLocation = shelfLocation,
-                            qunatity = quantity,
-                            availability = availability,
-                            imageUrl = base64Image
-                        )
-
-                        registerDonor(bookData, context)
+                        }
                     }
                 },
                 modifier = Modifier
@@ -267,9 +266,9 @@ fun AddBookScreen() {
     }
 }
 
-private fun registerDonor(addBookData: BookData, activityContext: Context) {
+private fun uploadBook(addBookData: BookData, activityContext: Context) {
 
-    val userEmail = LibTrackingData.readMail(activityContext)
+    val userEmail = LibraryTrackerPrefs.getMemberEmail(activityContext)
     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
     val orderId = dateFormat.format(Date())
     addBookData.bookId = orderId
@@ -310,7 +309,7 @@ data class BookData(
 )
 
 @Composable
-fun UploadDonorImage() {
+fun UploadBookImage() {
     val activityContext = LocalContext.current
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -320,10 +319,10 @@ fun UploadDonorImage() {
         onResult = { success ->
             if (success) {
                 imageUri = getImageUri(activityContext)
-                DonorPhoto.selImageUri = imageUri as Uri
-                DonorPhoto.isImageSelected = true
+                BookPhoto.selImageUri = imageUri as Uri
+                BookPhoto.isImageSelected = true
             } else {
-                DonorPhoto.isImageSelected = false
+                BookPhoto.isImageSelected = false
                 Toast.makeText(activityContext, "Capture Failed", Toast.LENGTH_SHORT).show()
             }
         }
@@ -385,7 +384,7 @@ fun getImageUri(activityContext: Context): Uri {
 }
 
 
-object DonorPhoto {
+object BookPhoto {
     lateinit var selImageUri: Uri
     var isImageSelected = false
 }

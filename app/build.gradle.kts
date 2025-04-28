@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.librarytracking"
+    namespace = "librarytrackingapp.sainithinreddymalkaiahgari.s3463812"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.librarytracking"
+        applicationId = "librarytrackingapp.sainithinreddymalkaiahgari.s3463812"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

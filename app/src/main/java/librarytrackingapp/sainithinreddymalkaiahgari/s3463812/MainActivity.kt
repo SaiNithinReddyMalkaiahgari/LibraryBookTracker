@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.content.Intent
@@ -66,7 +66,7 @@ fun MainScreen(onLoginClick: (value: Int) -> Unit) {
     val context = LocalContext.current as Activity
 
     LaunchedEffect(Unit) {
-        delay(3000) // 3 seconds delay
+        delay(3000)
         showSplash = false
     }
 
@@ -74,9 +74,7 @@ fun MainScreen(onLoginClick: (value: Int) -> Unit) {
         SplashScreen()
     } else {
 
-        val currentStatus = LibTrackingData.readLS(context)
-
-        if (currentStatus) {
+        if (LibraryTrackerPrefs.isSessionActive(context)) {
             onLoginClick.invoke(1)
         } else {
             onLoginClick.invoke(2)
@@ -101,7 +99,7 @@ fun SplashScreen() {
 
 
             Image(
-                painter = painterResource(id = R.drawable.library),
+                painter = painterResource(id = R.drawable.library_icon),
                 contentDescription = "Library Tracking App",
             )
 

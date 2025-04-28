@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -72,7 +72,7 @@ fun AddBookBorrowerScreen() {
     var bookList by remember { mutableStateOf(listOf<String>()) }
 
     var showDatePicker by remember { mutableStateOf(false) }
-    val userEmail = LibTrackingData.readMail(context)
+    val userEmail = LibraryTrackerPrefs.getMemberEmail(context)
 
     var loadBooks by remember { mutableStateOf(true) }
 
@@ -202,17 +202,23 @@ fun AddBookBorrowerScreen() {
 
             Button(
                 onClick = {
-                    val borrowerData = BorrowerData(
-                        fullName = name,
-                        email = email,
-                        phoneNumber = phone,
-                        book = selectedBook,
-                        borrowDate = borrowDate,
-                        notes = notes,
-                        isReturned = false
-                    )
 
-                    addBorrower(borrowerData, context)
+                    if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || selectedBook.isEmpty() || borrowDate.isEmpty()) {
+                        Toast.makeText(context, "Enter all fields", Toast.LENGTH_SHORT).show()
+                    } else {
+
+                        val borrowerData = BorrowerData(
+                            fullName = name,
+                            email = email,
+                            phoneNumber = phone,
+                            book = selectedBook,
+                            borrowDate = borrowDate,
+                            notes = notes,
+                            isReturned = false
+                        )
+
+                        addBorrower(borrowerData, context)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -225,7 +231,7 @@ fun AddBookBorrowerScreen() {
 
 private fun addBorrower(borrowerData: BorrowerData, activityContext: Context) {
 
-    val userEmail = LibTrackingData.readMail(activityContext)
+    val userEmail = LibraryTrackerPrefs.getMemberEmail(activityContext)
     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
     val orderId = dateFormat.format(Date())
     borrowerData.entryId = orderId

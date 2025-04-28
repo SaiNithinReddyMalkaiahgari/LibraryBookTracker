@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.content.Context
@@ -63,7 +63,7 @@ fun BorrowersScreen() {
     var searchQuery by remember { mutableStateOf("") }
 
     val context = LocalContext.current as Activity
-    val userEmail = LibTrackingData.readMail(context)
+    val userEmail = LibraryTrackerPrefs.getMemberEmail(context)
     var booksList by remember { mutableStateOf(listOf<BorrowerData>()) }
     var loadBorrowers by remember { mutableStateOf(true) }
 

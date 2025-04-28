@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.content.Intent
@@ -100,7 +100,7 @@ fun LibraryProfileScreen() {
                 Text(text = "Librarian Name ", modifier = Modifier.weight(1f))
                 Text(text = ": ")
                 Text(
-                    text = "${LibTrackingData.readUserName(context)}",
+                    text = "${LibraryTrackerPrefs.getMemberName(context)}",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -111,7 +111,7 @@ fun LibraryProfileScreen() {
                 Text(text = "Librarian EmailId ", modifier = Modifier.weight(1f))
                 Text(text = ": ")
                 Text(
-                    text = "${LibTrackingData.readMail(context)}",
+                    text = "${LibraryTrackerPrefs.getMemberEmail(context)}",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -122,7 +122,7 @@ fun LibraryProfileScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        LibTrackingData.writeLS(context, false)
+                        LibraryTrackerPrefs.setSessionActive(context, false)
 
                         val intent = Intent(context, LibCheckInActivity::class.java)
                         intent.flags =

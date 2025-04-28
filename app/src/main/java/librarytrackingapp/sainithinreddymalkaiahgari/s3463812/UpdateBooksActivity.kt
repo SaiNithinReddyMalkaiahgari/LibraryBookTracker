@@ -1,11 +1,8 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -43,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.database.FirebaseDatabase
-import java.io.ByteArrayOutputStream
 
 class UpdateBooksActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -237,7 +233,7 @@ fun updateBookData(bookId: String, updatedData: Map<String, Any>, context: Conte
 
 
     try {
-        val emailKey = LibTrackingData.readMail(context)
+        val emailKey = LibraryTrackerPrefs.getMemberEmail(context)
             .replace(".", ",")
         val path = "BooksInShelf/$emailKey/$bookId"
         FirebaseDatabase.getInstance().getReference(path).updateChildren(updatedData)

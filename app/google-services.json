@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "1036221120783",
+    "firebase_url": "https://librarytracker-e371d-default-rtdb.firebaseio.com",
     "project_id": "librarytracker-e371d",
     "storage_bucket": "librarytracker-e371d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1036221120783:android:845b1257c2ab29a6b2be7a",
+        "mobilesdk_app_id": "1:1036221120783:android:30b60517feeea1aab2be7a",
         "android_client_info": {
-          "package_name": "com.example.librarytracking"
+          "package_name": "librarytrackingapp.sainithinreddymalkaiahgari.s3463812"
         }
       },
       "oauth_client": [],

@@ -1,4 +1,4 @@
-package com.example.librarytracking
+package librarytrackingapp.sainithinreddymalkaiahgari.s3463812
 
 import android.app.Activity
 import android.content.Context
@@ -33,50 +33,51 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.database.FirebaseDatabase
 
-class LibCheckInActivity : ComponentActivity() {
+class LibRegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LoginScreen()
+            RegisterScreen()
         }
     }
 }
 
-
 @Composable
-fun LoginScreen() {
-    var useremail by remember { mutableStateOf("") }
-    var userpassword by remember { mutableStateOf("") }
+fun RegisterScreen() {
+    var librarianName by remember { mutableStateOf("") }
+    var librarianEmail by remember { mutableStateOf("") }
+    var librarianPassword by remember { mutableStateOf("") }
+    var confirmlibrarianPassword by remember { mutableStateOf("") }
 
     val context = LocalContext.current as Activity
 //    val context = LocalContext.current
-
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorResource(id = R.color.p1)),
-    ) {
+
+        ) {
 
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Welcome back!",
+                text = "Welcome to our App!",
                 color = colorResource(id = R.color.p2),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
             Text(
-                text = "Please enter your details",
+                text = "Please fill your details",
                 color = colorResource(id = R.color.p2),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 32.dp)
@@ -84,35 +85,76 @@ fun LoginScreen() {
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = useremail,
-                onValueChange = { useremail = it },
-                label = { Text("Enter E-Mail") },
-            )
+                value = librarianEmail,
+                onValueChange = { librarianEmail = it },
+                label = { Text("Enter Mail") },
 
-            Spacer(modifier = Modifier.height(4.dp))
+                )
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = userpassword,
-                onValueChange = { userpassword = it },
-                label = { Text("Enter Password") },
+                value = librarianName,
+                onValueChange = { librarianName = it },
+                label = { Text("Enter Name") }
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = librarianPassword,
+                onValueChange = { librarianPassword = it },
+                label = { Text("Enter Password") }
+            )
+
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = confirmlibrarianPassword,
+                onValueChange = { confirmlibrarianPassword = it },
+                label = { Text("Confirm Password") }
             )
 
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = {
-                    if (useremail.isNotEmpty() && userpassword.isNotEmpty()) {
-                        val libReaderData = LibReader(
-                            "",
-                            useremail,
-                            "",
-                            userpassword
-                        )
-                        userAccountAccess(libReaderData,context)
-                    } else {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+
+                    if (librarianName.isEmpty()) {
+                        Toast.makeText(context, "Enter name", Toast.LENGTH_SHORT).show()
+                        return@Button
                     }
+
+                    if (librarianEmail.isEmpty()) {
+                        Toast.makeText(context, "Enter Mail", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    if (librarianPassword.isEmpty()) {
+                        Toast.makeText(context, "Enter Password", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    if (librarianPassword != confirmlibrarianPassword) {
+                        Toast.makeText(context, "Passwords doesn't match", Toast.LENGTH_SHORT)
+                            .show()
+                        return@Button
+                    }
+
+                    val libReaderData = LibReader(
+                        librarianName,
+                        librarianEmail,
+                        "",
+                        librarianPassword
+                    )
+                    libReaderRegister(libReaderData, context)
+
+
                 },
                 modifier = Modifier
                     .padding(16.dp, 2.dp),
@@ -122,72 +164,74 @@ fun LoginScreen() {
                     contentColor = colorResource(id = R.color.p1)
                 )
             ) {
-                Text("SignIn")
+                Text("SignUp")
             }
-
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Spacer(modifier = Modifier.weight(1f))
 
+
             Row(
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
             ) {
                 Text(
-                    text = "Don't have an account? ",
-                    color = colorResource(id = R.color.p2),
+                    text = "Already have an account? ",
                     style = MaterialTheme.typography.bodyLarge,
+                    color = colorResource(id = R.color.p2),
                 )
 
                 Text(
-                    text = "SignUp",
+                    text = "SignIn",
                     color = colorResource(id = R.color.p2),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black),
                     modifier = Modifier.clickable {
-                        context.startActivity(Intent(context, LibRegisterActivity::class.java))
+                        context.startActivity(Intent(context, LibCheckInActivity::class.java))
                         context.finish()
                     }
                 )
-
             }
 
         }
-    }
 
+    }
 }
 
-fun userAccountAccess(libReader: LibReader, context: Context) {
+fun libReaderRegister(userData: LibReader, context: Context) {
 
     val firebaseDatabase = FirebaseDatabase.getInstance()
-    val databaseReference = firebaseDatabase.getReference("LibraryReader").child(libReader.emailid.replace(".", ","))
+    val databaseReference = firebaseDatabase.getReference("LibraryReader")
 
-    databaseReference.get().addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            val dbData = task.result?.getValue(LibReader::class.java)
-            if (dbData != null) {
-                if (dbData.password == libReader.password) {
+    databaseReference.child(userData.emailid.replace(".", ","))
+        .setValue(userData)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(context, "You Registered Successfully", Toast.LENGTH_SHORT)
+                    .show()
 
-                    LibTrackingData.writeLS(context, true)
-                    LibTrackingData.writeMail(context, dbData.emailid)
-                    LibTrackingData.writeUserName(context, dbData.name)
+                context.startActivity(Intent(context, LibCheckInActivity::class.java))
+                (context as Activity).finish()
 
-                    context.startActivity(Intent(context, LibraryHomectivity::class.java))
-                    (context as Activity).finish()
-                    Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()
-
-                } else {
-                    Toast.makeText(context, "Seems Incorrect Credentials", Toast.LENGTH_SHORT).show()
-                }
             } else {
-                Toast.makeText(context, "Your account not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Registration Failed",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        } else {
+        }
+        .addOnFailureListener { _ ->
             Toast.makeText(
                 context,
                 "Something went wrong",
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-    }
 }
+
+data class LibReader(
+    var name: String = "",
+    var emailid: String = "",
+    var area: String = "",
+    var password: String = ""
+)

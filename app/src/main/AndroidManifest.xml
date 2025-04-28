@@ -12,23 +12,24 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/library_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/library_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.LibraryTracking"
         tools:targetApi="31">
+
         <activity
-            android:name=".LibraryProfileActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.LibraryProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".UpdateBooksActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.UpdateBooksActivity"
             android:exported="false" />
         <activity
-            android:name=".ManageBorrowersActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.ManageBorrowersActivity"
             android:exported="false" />
         <activity
-            android:name=".ManageBooksActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.ManageBooksActivity"
             android:exported="false" />
 
         <provider
@@ -42,22 +43,22 @@
         </provider>
 
         <activity
-            android:name=".AddBorrowerActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.AddBorrowerActivity"
             android:exported="false" />
         <activity
-            android:name=".AddBookActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.AddBookActivity"
             android:exported="false" />
         <activity
-            android:name=".LibraryHomectivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.LibraryHomectivity"
             android:exported="false" />
         <activity
-            android:name=".LibRegisterActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.LibRegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".LibCheckInActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.LibCheckInActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="librarytrackingapp.sainithinreddymalkaiahgari.s3463812.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LibraryTracking">
