@@ -12,10 +12,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,7 +50,7 @@ class LibCheckInActivity : ComponentActivity() {
 
 @Composable
 fun LoginScreen() {
-    var useremail by remember { mutableStateOf("") }
+    var librarianemail by remember { mutableStateOf("") }
     var librarianEmail by remember { mutableStateOf("") }
 
     val context = LocalContext.current as Activity
@@ -56,7 +59,8 @@ fun LoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.p1)),
+            .background(color = colorResource(id = R.color.p1))
+            .padding(WindowInsets.systemBars.asPaddingValues()),
     ) {
 
         Column(
@@ -82,8 +86,8 @@ fun LoginScreen() {
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = useremail,
-                onValueChange = { useremail = it },
+                value = librarianemail,
+                onValueChange = { librarianemail = it },
                 label = { Text("Enter E-Mail") },
             )
 
@@ -100,10 +104,10 @@ fun LoginScreen() {
 
             Button(
                 onClick = {
-                    if (useremail.isNotEmpty() && librarianEmail.isNotEmpty()) {
+                    if (librarianemail.isNotEmpty() && librarianEmail.isNotEmpty()) {
                         val libReaderData = LibReader(
                             "",
-                            useremail,
+                            librarianemail,
                             "",
                             librarianEmail
                         )
@@ -158,7 +162,6 @@ fun userAccountAccess(libReader: LibReader, context: Context) {
 
     val firebaseDatabase = FirebaseDatabase.getInstance()
     val databaseReference = firebaseDatabase.getReference("LibraryReader").child(libReader.emailid.replace(".", ","))
-
     databaseReference.get().addOnCompleteListener { task ->
         if (task.isSuccessful) {
             val dbData = task.result?.getValue(LibReader::class.java)
@@ -171,7 +174,7 @@ fun userAccountAccess(libReader: LibReader, context: Context) {
 
                     context.startActivity(Intent(context, LibraryHomectivity::class.java))
                     (context as Activity).finish()
-                    Toast.makeText(context, "Login Sucessfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Login Successfully", Toast.LENGTH_SHORT).show()
 
                 } else {
                     Toast.makeText(context, "Seems Incorrect Credentials", Toast.LENGTH_SHORT).show()

@@ -21,11 +21,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -89,7 +92,7 @@ fun AddBookScreen() {
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())
     ) {
         Row(
             modifier = Modifier
@@ -270,11 +273,11 @@ private fun uploadBook(addBookData: BookData, activityContext: Context) {
 
     val userEmail = LibraryTrackerPrefs.getMemberEmail(activityContext)
     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-    val orderId = dateFormat.format(Date())
-    addBookData.bookId = orderId
+    val bookId = dateFormat.format(Date())
+    addBookData.bookId = bookId
 
     FirebaseDatabase.getInstance().getReference("BooksInShelf").child(userEmail.replace(".", ","))
-        .child(orderId).setValue(addBookData)
+        .child(bookId).setValue(addBookData)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(activityContext, "Book Added Successfully", Toast.LENGTH_SHORT)

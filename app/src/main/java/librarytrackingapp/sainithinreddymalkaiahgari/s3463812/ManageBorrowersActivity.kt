@@ -13,11 +13,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,11 +73,19 @@ fun BorrowersScreen() {
     var selectedBorrower by remember { mutableStateOf<BorrowerData?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
+    var allBookData by remember { mutableStateOf(listOf<BookData>()) }
+
+    var loadBooks by remember { mutableStateOf(true) }
 
     LaunchedEffect(userEmail) {
         getBorrowers(userEmail) { orders ->
             booksList = orders
             loadBorrowers = false
+        }
+
+        getBooks(userEmail) { books ->
+            allBookData = books
+            loadBooks = true
         }
     }
 
@@ -82,6 +93,7 @@ fun BorrowersScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(WindowInsets.systemBars.asPaddingValues())
     ) {
 
         Row(
@@ -122,18 +134,11 @@ fun BorrowersScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (loadBorrowers) {
+            if (loadBorrowers && loadBooks) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
 
-
                 if (booksList.isNotEmpty()) {
-//                    LazyColumn {
-//                        items(booksList.size) { donor ->
-//                            BorrowerItem(booksList[donor])
-//                            Spacer(modifier = Modifier.height(6.dp))
-//                        }
-//                    }
 
                     LazyColumn {
                         items(booksList.size) { donor ->
@@ -150,12 +155,11 @@ fun BorrowersScreen() {
                             borrowerData = selectedBorrower!!,
                             onDismiss = { showDialog = false },
                             onConfirm = { borrower ->
-                                markAsReturned(userEmail, context, borrower)
+                                markAsReturned(userEmail, context, borrower, allBookData)
                                 showDialog = false
                             }
                         )
                     }
-
 
                 } else {
                     Text(text = "No Borrowers Found")
@@ -166,7 +170,12 @@ fun BorrowersScreen() {
     }
 }
 
-fun markAsReturned(accountMail: String, context: Context, borrower: BorrowerData) {
+fun markAsReturned(
+    accountMail: String,
+    context: Context,
+    borrower: BorrowerData,
+    allBookData: List<BookData>
+) {
     val emailKey = accountMail.replace(".", ",")
     val borrowerId = borrower.entryId ?: return
 
@@ -179,12 +188,25 @@ fun markAsReturned(accountMail: String, context: Context, borrower: BorrowerData
 
     databaseReference.updateChildren(updates)
         .addOnSuccessListener {
-            Toast.makeText(context, "Marked as Returned", Toast.LENGTH_SHORT).show()
+
+
+            val book = allBookData.find { it.title == borrower.book }
+            if (book != null) {
+                val newQuantity = book.qunatity.toInt() + 1
+                val updateMap = mapOf<String, Any>(
+                    "qunatity" to newQuantity.toString(),
+                    "availability" to if (newQuantity > 0) "Available" else "Not Available"
+                )
+
+                updateBookQuantity(book.bookId, updateMap, context)
+            }
         }
         .addOnFailureListener {
             Toast.makeText(context, "Failed to Update", Toast.LENGTH_SHORT).show()
         }
 }
+
+
 
 
 @Composable
@@ -267,87 +289,6 @@ fun BorrowerItem(borrowerItem: BorrowerData, onUpdateClicked: (BorrowerData) -> 
     }
 }
 
-@Composable
-fun BorrowerItemOld(borrowerItem: BorrowerData) {
-
-    val context = LocalContext.current
-
-
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Row(modifier = Modifier) {
-
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = "Borrower Name : ${borrowerItem.fullName}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Book Name : ${borrowerItem.book}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = "Date of Borrow: ${borrowerItem.borrowDate}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                val retStatus = if (borrowerItem.isReturned) "Returned" else "With Borrower"
-
-                Text(
-                    text = "Status : $retStatus",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-
-            }
-
-            Text(
-                modifier = Modifier
-                    .clickable {
-                        SelectedBook.borrowerItem = borrowerItem
-                    }
-                    .background(
-                        color = Color.Black,
-                        shape = RoundedCornerShape(
-                            10.dp
-                        )
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = colorResource(id = R.color.black),
-                        shape = RoundedCornerShape(
-                            10.dp
-                        )
-                    )
-                    .padding(vertical = 4.dp, horizontal = 12.dp),
-                text = "Update",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = colorResource(id = R.color.white),
-                )
-            )
-        }
-    }
-}
 
 fun getBorrowers(userEmail: String, callback: (List<BorrowerData>) -> Unit) {
 

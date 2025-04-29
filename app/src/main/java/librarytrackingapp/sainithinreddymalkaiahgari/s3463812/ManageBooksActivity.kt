@@ -17,11 +17,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -92,6 +95,7 @@ fun ManageBooksScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(WindowInsets.systemBars.asPaddingValues())
     ) {
 
         Row(
@@ -130,7 +134,7 @@ fun ManageBooksScreen() {
         ) {
 
 
-            // Search Bar
+
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -141,12 +145,7 @@ fun ManageBooksScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-//            // Donor List
-//            LazyColumn {
-//                items(filteredDonors.size) { donor ->
-//                    BookItem(filteredDonors[donor])
-//                }
-//            }
+
             if (loadBooks) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
@@ -181,7 +180,7 @@ fun ManageBooksScreen() {
 }
 
 
-// Donor Item UI
+
 @Composable
 fun BookItem(bookData: BookData) {
 
@@ -195,7 +194,7 @@ fun BookItem(bookData: BookData) {
 
             if (bookData.imageUrl.isNotEmpty()) {
                 Image(
-                    bitmap = decodeBase64ToBitmap(bookData.imageUrl)!!.asImageBitmap(),
+                    bitmap = convertToBitmap(bookData.imageUrl)!!.asImageBitmap(),
                     contentDescription = "Book Image",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -289,10 +288,6 @@ fun BookItem(bookData: BookData) {
                 Spacer(modifier = Modifier.height(6.dp))
 
 
-//                Text(
-//                    text = "Quantity : ${bookData.qunatity}",
-//                    fontSize = 16.sp
-//                )
             }
         }
     }
@@ -324,7 +319,7 @@ fun getBooks(userEmail: String, callback: (List<BookData>) -> Unit) {
 }
 
 
-fun decodeBase64ToBitmap(base64String: String): Bitmap? {
+fun convertToBitmap(base64String: String): Bitmap? {
     val decodedString = Base64.decode(base64String, Base64.DEFAULT)
     val originalBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
     return originalBitmap

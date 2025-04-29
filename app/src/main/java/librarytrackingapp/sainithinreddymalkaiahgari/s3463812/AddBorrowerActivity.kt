@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,11 +15,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -76,19 +80,18 @@ fun AddBookBorrowerScreen() {
 
     var loadBooks by remember { mutableStateOf(true) }
 
+    var allBookData by remember { mutableStateOf(listOf<BookData>()) }
 
-    // Fetch book titles from Firebase
-//    LaunchedEffect(Unit) {
-//        getBooks(userEmail) { books ->
-//            bookList = books.mapNotNull { it.title }
-//        }
-//    }
+
+
 
     LaunchedEffect(Unit) {
         getBooks(userEmail) { books ->
             bookList = books
                 .filter { it.availability == "Available" }
                 .mapNotNull { it.title }
+
+            allBookData = books.filter { it.availability == "Available" }
             loadBooks = false
         }
     }
@@ -111,7 +114,8 @@ fun AddBookBorrowerScreen() {
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(WindowInsets.systemBars.asPaddingValues()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Header
@@ -169,7 +173,6 @@ fun AddBookBorrowerScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // 🔽 Using your custom dropdown component
             DropdownMenuBookTitles(
                 types = bookList,
                 selectedType = selectedBook,
@@ -207,6 +210,9 @@ fun AddBookBorrowerScreen() {
                         Toast.makeText(context, "Enter all fields", Toast.LENGTH_SHORT).show()
                     } else {
 
+                        val bookToUpdate = allBookData.find { it.title == selectedBook }
+
+
                         val borrowerData = BorrowerData(
                             fullName = name,
                             email = email,
@@ -214,10 +220,11 @@ fun AddBookBorrowerScreen() {
                             book = selectedBook,
                             borrowDate = borrowDate,
                             notes = notes,
-                            isReturned = false
+                            isReturned = false,
+                            bookid = bookToUpdate!!.bookId
                         )
 
-                        addBorrower(borrowerData, context)
+                        addBorrower(borrowerData, allBookData, context)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -229,24 +236,43 @@ fun AddBookBorrowerScreen() {
 }
 
 
-private fun addBorrower(borrowerData: BorrowerData, activityContext: Context) {
 
+private fun addBorrower(
+    borrowerData: BorrowerData,
+    allBookData: List<BookData>,
+    activityContext: Context
+) {
     val userEmail = LibraryTrackerPrefs.getMemberEmail(activityContext)
     val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
     val orderId = dateFormat.format(Date())
     borrowerData.entryId = orderId
 
-    FirebaseDatabase.getInstance().getReference("BookBorrowers").child(userEmail.replace(".", ","))
-        .child(orderId).setValue(borrowerData)
+    val dbRef = FirebaseDatabase.getInstance()
+        .getReference("BookBorrowers")
+        .child(userEmail.replace(".", ","))
+        .child(orderId)
+
+    dbRef.setValue(borrowerData)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                val bookToUpdate = allBookData.find { it.title == borrowerData.book }
+                if (bookToUpdate != null && bookToUpdate.qunatity.toInt() > 0) {
+                    val updatedQuantity = bookToUpdate.qunatity.toInt() - 1
+                    val updateMap = mapOf<String, Any>(
+                        "qunatity" to updatedQuantity.toString(),
+                        "availability" to if (updatedQuantity == 0) "Not Available" else "Available"
+                    )
+
+                    updateBookQuantity(bookToUpdate.bookId, updateMap, activityContext)
+                }
+
                 Toast.makeText(activityContext, "Borrower Added Successfully", Toast.LENGTH_SHORT)
                     .show()
                 (activityContext as Activity).finish()
             } else {
                 Toast.makeText(
                     activityContext,
-                    "Borrower Added Failed: ${task.exception?.message}",
+                    "Borrower Add Failed: ${task.exception?.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -254,10 +280,40 @@ private fun addBorrower(borrowerData: BorrowerData, activityContext: Context) {
         .addOnFailureListener { exception ->
             Toast.makeText(
                 activityContext,
-                "Borrower Added Failed: ${exception.message}",
+                "Borrower Add Failed: ${exception.message}",
                 Toast.LENGTH_SHORT
             ).show()
         }
+}
+
+
+fun updateBookQuantity(bookId: String, updatedData: Map<String, Any>, context: Context) {
+
+
+    try {
+        val emailKey = LibraryTrackerPrefs.getMemberEmail(context)
+            .replace(".", ",")
+        val path = "BooksInShelf/$emailKey/$bookId"
+        FirebaseDatabase.getInstance().getReference(path).updateChildren(updatedData)
+            .addOnSuccessListener {
+                Toast.makeText(
+                    context,
+                    "Details Updated Successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                (context as Activity).finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    context,
+                    "Failed to update",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    } catch (e: Exception) {
+        Log.e("Test", "Error Message : ${e.message}")
+    }
 }
 
 
@@ -314,6 +370,7 @@ data class BorrowerData(
     var borrowDate: String = "",
     var notes: String = "",
     var entryId: String = "",
-    var isReturned: Boolean = false
+    var isReturned: Boolean = false,
+    var bookid: String = ""
 )
 

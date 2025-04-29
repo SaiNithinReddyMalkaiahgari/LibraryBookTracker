@@ -13,11 +13,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -70,6 +73,7 @@ fun UpdateBook() {
 
     Column(
         modifier = Modifier.fillMaxSize()
+            .padding(WindowInsets.systemBars.asPaddingValues())
     ) {
         Row(
             modifier = Modifier
@@ -81,7 +85,10 @@ fun UpdateBook() {
 
             Image(
                 modifier = Modifier
-                    .size(36.dp),
+                    .size(36.dp)
+                    .clickable {
+                        (context as Activity).finish()
+                    },
                 painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                 contentDescription = "back arrow"
             )
@@ -107,7 +114,6 @@ fun UpdateBook() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-//            UploadDonorImage()
 
             Spacer(modifier = Modifier.height(24.dp))
 

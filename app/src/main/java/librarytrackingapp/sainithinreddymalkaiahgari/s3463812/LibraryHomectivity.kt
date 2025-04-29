@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -54,270 +57,6 @@ class LibraryHomectivity : ComponentActivity() {
 }
 
 
-@Composable
-fun LibraryHomeScreenOld() {
-    val context = LocalContext.current
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Top Purple Section
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(bottomEnd = 32.dp, bottomStart = 32.dp))
-                    .background(Color.Black) // Purple color
-            ) {
-                // Image and Arrow Button
-                Column(
-                    modifier = Modifier.align(Alignment.Center)
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.library), // Replace with your image
-                        contentDescription = "Library Image",
-                        modifier = Modifier
-                            .size(150.dp) // Adjust size as needed
-                    )
-
-                    Text(
-                        text = "Library Tracking App",
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
-
-                }
-
-                IconButton(
-                    onClick = {
-//                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(16.dp)
-                        .background(Color.Red, CircleShape) // Yellow background
-                        .size(40.dp) // Adjust size as needed
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle, // Use a forward arrow
-                        contentDescription = "Arrow",
-                        tint = Color.White
-                    )
-                }
-            }
-
-            // Login Form Section
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(3f)
-                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                    .background(Color.White)
-                    .padding(horizontal = 16.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                )
-                {
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                            .padding(top = 12.dp, bottom = 0.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        Column(
-                            modifier = Modifier
-                                .width(50.dp)
-                                .height(50.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Text(
-                                text = "Add Book",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .width(42.dp)
-                                .height(42.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-
-                            Text(
-                                text = "Add Readers",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .width(42.dp)
-                                .height(42.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-
-                            Text(
-                                text = "Manage Books",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .padding(top = 16.dp, bottom = 0.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        Column(
-                            modifier = Modifier
-                                .width(42.dp)
-                                .height(42.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-
-                            Text(
-                                text = "Delete Book",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .width(42.dp)
-                                .height(42.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-
-                            Text(
-                                text = "Summary",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .width(42.dp)
-                                .height(42.dp)
-                                .clickable {
-
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.library),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .width(42.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-
-
-                            Text(
-                                text = "My Profile",
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -333,6 +72,7 @@ fun LibraryHomeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(WindowInsets.systemBars.asPaddingValues())
     ) {
 
         Row(
